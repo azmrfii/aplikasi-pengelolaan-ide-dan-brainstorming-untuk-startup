@@ -1,33 +1,22 @@
 package main
 
-import (
-	"fmt"
-	"bufio"
-	"os"
-	"strings"
-	"time"
-)
+import "fmt"
 
 const MAX_IDE = 100
 
 type Ide struct {
-	Judul       string
-	Kategori    string
-	Tanggal     string
-	Upvotes     int
+	Judul    string
+	Kategori string
+	Tanggal  string
+	Upvotes  int
 }
 
 var daftarIde [MAX_IDE]Ide
 var jumlahIde int
 
-func inputTanggal() string {
-	now := time.Now()
-	return now.Format("2006-01-02")
-}
-
-func tambahIde(judul, kategori string) {
+func tambahIde(judul, kategori, tanggal string) {
 	if jumlahIde < MAX_IDE {
-		daftarIde[jumlahIde] = Ide{judul, kategori, inputTanggal(), 0}
+		daftarIde[jumlahIde] = Ide{judul, kategori, tanggal, 0}
 		jumlahIde++
 		fmt.Println("Ide berhasil ditambahkan!")
 	} else {
@@ -36,10 +25,10 @@ func tambahIde(judul, kategori string) {
 }
 
 func cariIdeSequential(keyword string) {
-	fmt.Println("\nHasil Pencarian (Sequential Search):")
+	fmt.Println("\nHasil Pencarian:")
 	ketemu := false
 	for i := 0; i < jumlahIde; i++ {
-		if strings.Contains(strings.ToLower(daftarIde[i].Judul), strings.ToLower(keyword)) {
+		if daftarIde[i].Judul == keyword {
 			tampilkanIde(daftarIde[i])
 			ketemu = true
 		}
@@ -130,13 +119,12 @@ func selectionSortByUpvotes(ascending bool) {
 	for i := 0; i < jumlahIde-1; i++ {
 		idx := i
 		for j := i + 1; j < jumlahIde; j++ {
-			if (ascending && daftarIde[j].Upvotes < daftarIde[idx].Upvotes) || (!ascending && daftarIde[j].Upvotes > daftarIde[idx].Upvotes) {
+			if (ascending && daftarIde[j].Upvotes < daftarIde[idx].Upvotes) ||
+				(!ascending && daftarIde[j].Upvotes > daftarIde[idx].Upvotes) {
 				idx = j
 			}
 		}
-		temp := daftarIde[i]
-		daftarIde[i] = daftarIde[idx]
-		daftarIde[idx] = temp
+		daftarIde[i], daftarIde[idx] = daftarIde[idx], daftarIde[i]
 	}
 }
 
@@ -161,113 +149,93 @@ func tampilkanIdePopuler(start, end string) {
 }
 
 func menu() {
-    scanner := bufio.NewScanner(os.Stdin)
-    
-    for {
-        var pilihan int
-        fmt.Println("\n===== MENU =====")
-        fmt.Println("1. Tambah Ide")
-        fmt.Println("2. Tampilkan Semua Ide")
-        fmt.Println("3. Cari Ide (Sequential Search)")
-        fmt.Println("4. Cari Ide (Binary Search)")
-        fmt.Println("5. Edit Ide")
-        fmt.Println("6. Hapus Ide")
-        fmt.Println("7. Upvote Ide")
-        fmt.Println("8. Urutkan Ide (Upvotes - Selection Sort)")
-        fmt.Println("9. Urutkan Ide (Judul - Insertion Sort)")
-        fmt.Println("10. Tampilkan Ide Populer (Tanggal)")
-        fmt.Println("0. Keluar")
-        fmt.Print("Pilihan Anda: ")
+	for {
+		var pilihan int
+		fmt.Println("\n===== MENU =====")
+		fmt.Println("1. Tambah Ide")
+		fmt.Println("2. Tampilkan Semua Ide")
+		fmt.Println("3. Cari Ide (Sequential Eksak)")
+		fmt.Println("4. Cari Ide (Binary Search)")
+		fmt.Println("5. Edit Ide")
+		fmt.Println("6. Hapus Ide")
+		fmt.Println("7. Upvote Ide")
+		fmt.Println("8. Urutkan Ide (Upvotes)")
+		fmt.Println("9. Urutkan Ide (Judul)")
+		fmt.Println("10. Tampilkan Ide Populer (Tanggal)")
+		fmt.Println("0. Keluar")
+		fmt.Print("Pilihan Anda: ")
+		fmt.Scanln(&pilihan)
 
-        _, err := fmt.Scanln(&pilihan)
-        if err != nil {
-            scanner.Scan()
-            fmt.Println("Input tidak valid. Harap masukkan angka.")
-            continue
-        }
-
-        if pilihan == 0 {
-            fmt.Println("Keluar dari program.")
-            return
-        }
-
-        switch pilihan {
-        case 1:
-            var judul, kategori string
-            fmt.Print("Masukkan Judul Ide: ")
-            scanner.Scan()
-            judul = scanner.Text()
-            fmt.Print("Masukkan Kategori: ")
-            scanner.Scan()
-            kategori = scanner.Text()
-            tambahIde(judul, kategori)
-        case 2:
-            tampilkanSemuaIde()
-        case 3:
-            var keyword string
-            fmt.Print("Masukkan kata kunci: ")
-            scanner.Scan()
-            keyword = scanner.Text()
-            cariIdeSequential(keyword)
-        case 4:
-            var keyword string
-            fmt.Print("Masukkan judul lengkap: ")
-            scanner.Scan()
-            keyword = scanner.Text()
-            insertionSortByJudul()
-            idx := binarySearch(keyword)
-            if idx != -1 {
-                fmt.Println("Ide ditemukan:")
-                tampilkanIde(daftarIde[idx])
-            } else {
-                fmt.Println("Ide tidak ditemukan.")
-            }
-        case 5:
-            var judul, baru, kategori string
-            fmt.Print("Judul yang ingin diedit: ")
-            scanner.Scan()
-            judul = scanner.Text()
-            fmt.Print("Judul baru: ")
-            scanner.Scan()
-            baru = scanner.Text()
-            fmt.Print("Kategori baru: ")
-            scanner.Scan()
-            kategori = scanner.Text()
-            editIde(judul, baru, kategori)
-        case 6:
-            var judul string
-            fmt.Print("Masukkan judul yang ingin dihapus: ")
-            scanner.Scan()
-            judul = scanner.Text()
-            hapusIde(judul)
-        case 7:
-            var judul string
-            fmt.Print("Masukkan judul untuk di-upvote: ")
-            scanner.Scan()
-            judul = scanner.Text()
-            upvoteIde(judul)
-        case 8:
-            var asc int
-            fmt.Print("Urutan (1: ascending, 0: descending): ")
-            fmt.Scanln(&asc)
-            selectionSortByUpvotes(asc == 1)
-            tampilkanSemuaIde()
-        case 9:
-            insertionSortByJudul()
-            tampilkanSemuaIde()
-        case 10:
-            var start, end string
-            fmt.Print("Tanggal mulai (yyyy-mm-dd): ")
-            scanner.Scan()
-            start = scanner.Text()
-            fmt.Print("Tanggal akhir (yyyy-mm-dd): ")
-            scanner.Scan()
-            end = scanner.Text()
-            tampilkanIdePopuler(start, end)
-        default:
-            fmt.Println("Pilihan tidak valid.")
-        }
-    }
+		switch pilihan {
+		case 1:
+			var judul, kategori, tanggal string
+			fmt.Print("Masukkan Judul: ")
+			fmt.Scanln(&judul)
+			fmt.Print("Masukkan Kategori: ")
+			fmt.Scanln(&kategori)
+			fmt.Print("Masukkan Tanggal (yyyy-mm-dd): ")
+			fmt.Scanln(&tanggal)
+			tambahIde(judul, kategori, tanggal)
+		case 2:
+			tampilkanSemuaIde()
+		case 3:
+			var keyword string
+			fmt.Print("Masukkan Judul yang dicari: ")
+			fmt.Scanln(&keyword)
+			cariIdeSequential(keyword)
+		case 4:
+			var keyword string
+			fmt.Print("Masukkan Judul lengkap: ")
+			fmt.Scanln(&keyword)
+			insertionSortByJudul()
+			idx := binarySearch(keyword)
+			if idx != -1 {
+				tampilkanIde(daftarIde[idx])
+			} else {
+				fmt.Println("Ide tidak ditemukan.")
+			}
+		case 5:
+			var judul, baru, kategori string
+			fmt.Print("Judul yang ingin diedit: ")
+			fmt.Scanln(&judul)
+			fmt.Print("Judul baru: ")
+			fmt.Scanln(&baru)
+			fmt.Print("Kategori baru: ")
+			fmt.Scanln(&kategori)
+			editIde(judul, baru, kategori)
+		case 6:
+			var judul string
+			fmt.Print("Judul yang ingin dihapus: ")
+			fmt.Scanln(&judul)
+			hapusIde(judul)
+		case 7:
+			var judul string
+			fmt.Print("Judul untuk upvote: ")
+			fmt.Scanln(&judul)
+			upvoteIde(judul)
+		case 8:
+			var asc int
+			fmt.Print("Urutkan by upvotes (1: Asc, 0: Desc): ")
+			fmt.Scanln(&asc)
+			selectionSortByUpvotes(asc == 1)
+			tampilkanSemuaIde()
+		case 9:
+			insertionSortByJudul()
+			tampilkanSemuaIde()
+		case 10:
+			var start, end string
+			fmt.Print("Tanggal mulai (yyyy-mm-dd): ")
+			fmt.Scanln(&start)
+			fmt.Print("Tanggal akhir (yyyy-mm-dd): ")
+			fmt.Scanln(&end)
+			tampilkanIdePopuler(start, end)
+		case 0:
+			fmt.Println("Terima kasih!")
+			return
+		default:
+			fmt.Println("Pilihan tidak valid.")
+		}
+	}
 }
 
 func main() {
