@@ -154,7 +154,7 @@ func menu() {
 		fmt.Println("\n===== MENU =====")
 		fmt.Println("1. Tambah Ide")
 		fmt.Println("2. Tampilkan Semua Ide")
-		fmt.Println("3. Cari Ide (Sequential Eksak)")
+		fmt.Println("3. Cari Ide (Sequential Search)")
 		fmt.Println("4. Cari Ide (Binary Search)")
 		fmt.Println("5. Edit Ide")
 		fmt.Println("6. Hapus Ide")
